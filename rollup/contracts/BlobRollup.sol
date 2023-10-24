@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./Blob.sol";
+import "./PolynomialEvaluation.sol";
+
 contract BlobHashGetterFactory {
     constructor() payable {
         bytes memory code = hex"6000354960005260206000F3";
@@ -146,9 +149,7 @@ contract BlobRollup {
         emit Challenge(batchNum);
     }
 
-    function prove(BatchData[] calldata batches) external {
-        
-    }
+    function prove(BatchData[] calldata batches) external {}
 
     function _buildCommitment(
         uint256 MAX_TXS,
@@ -161,14 +162,32 @@ contract BlobRollup {
         return table;
     }
 
-    function evaluation(bytes calldata input) public view {
+    function evaluation(
+        bytes calldata input
+    ) public view returns (bytes memory _output) {
         address precompile = address(0x0A);
         (bool ok, bytes memory output) = precompile.staticcall{gas: 50000}(
             input
         );
+        require(ok, "POINT_EVALUATION_PRECOMPILE ERROR");
+
+        _output = output;
     }
 
     function getDataHash() public view returns (bytes32) {
         return dataHash;
+    }
+
+    function getPointValue(bytes calldata txs) public pure returns (uint256) {
+        BlobEncoder.Blob[] memory blobs = BlobEncoder.encodeBlobs(txs);
+        bytes32[4096] memory blob = blobs[0].data;
+
+        uint256[] memory polynomial = BlobEncoder.blobToPolynomial(blob);
+
+        uint256 y = PolynomialEvaluation.evaluate_polynomial_in_evaluation_form(
+            polynomial,
+            0x267762ab802631f2395fde004449c850cf5be841876a9042c0d2eea57b1922f0
+        );
+        return y;
     }
 }
