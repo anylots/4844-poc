@@ -1,6 +1,7 @@
 const { ethers } = require('ethers');
 const rollup_address = "0xDf70259674Ad261b3d7fe7F604dcAA634500c534";
 const BlobRollup_Artifact = require("../artifacts/contracts/BlobRollup.sol/BlobRollup.json");
+const Rollup_Artifact = require("./Rollup.json");
 const fs = require("fs");
 require("dotenv").config({ path: ".env" });
 
@@ -50,19 +51,22 @@ async function prove() {
 
 async function evaluate_y(){
     let httpProvider = new ethers.providers.JsonRpcProvider(
-        "http://127.0.0.1:8545"
+        "https://eth-sepolia.g.alchemy.com/v2/3VpooM4yCL1TYnkaedcHraMo234vhN5y"
     );
     const signer = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80", httpProvider);
     const blobRollup = new ethers.Contract(
-        "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        BlobRollup_Artifact.abi,
+        "0xC5386CBDa4864aE1F86Ed5840D370855F64Bcd3c",
+        Rollup_Artifact.abi,
         signer,
     )
 
-    let txs_rlp = "0xf8e1f86f80843b9aca00825208943acb110ebd55649be498dcc641947bfd5e7faad589056bc75e2d631000008083019ecda09b2247436104dccb28ac74bebf9723971e7987dbee76d6e191e22694101922c6a004ff9d79f16497a86835a2e1b2835ee863b4575307807c14e1bda2a09e3b4d0ef86e01843b9aca00825208940425266311aa5858625cd399eadbbfab183494f7888ac7230489e800008083019ecea033ba3571cf65812a9ebd5f58ef5aa21c56fcf955e024fc1fee90a4353cdd04cda01e27d2a06f98c13330f32de49468d0a6b63df3c77fc52d52dfc9c2e451d4dfa1";
-
-    let reslut = await blobRollup.getPointValue(ethers.utils.arrayify(txs_rlp));
+    let result = await blobRollup.storageBatchs(1);
     console.log("result:" + result);
+
+    // let txs_rlp = "0xf8e1f86f80843b9aca00825208943acb110ebd55649be498dcc641947bfd5e7faad589056bc75e2d631000008083019ecda09b2247436104dccb28ac74bebf9723971e7987dbee76d6e191e22694101922c6a004ff9d79f16497a86835a2e1b2835ee863b4575307807c14e1bda2a09e3b4d0ef86e01843b9aca00825208940425266311aa5858625cd399eadbbfab183494f7888ac7230489e800008083019ecea033ba3571cf65812a9ebd5f58ef5aa21c56fcf955e024fc1fee90a4353cdd04cda01e27d2a06f98c13330f32de49468d0a6b63df3c77fc52d52dfc9c2e451d4dfa1";
+
+    // let reslut = await blobRollup.getPointValue(ethers.utils.arrayify(txs_rlp));
+    // console.log("result:" + result);
 
 }
 
