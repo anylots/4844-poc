@@ -1,4 +1,4 @@
-module github.com/inphi/blob-utils
+module submitter
 
 go 1.19
 
@@ -19,9 +19,11 @@ require (
 	github.com/deckarep/golang-set/v2 v2.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.0 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20191108122812-4678299bea08 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
