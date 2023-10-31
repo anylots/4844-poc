@@ -18,9 +18,9 @@
 # Go workspace file
 go.work
 
-blob-utils
-l2data
-submitter
+# blob-utils
+# l2data
+# ./submitter
 
 artifacts
 cache
