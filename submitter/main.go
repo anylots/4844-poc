@@ -133,9 +133,41 @@ func TxApp(cliCtx *cli.Context) error {
 		log.Fatalf("failed to compute commitments: %v", err)
 	}
 
+	log.Printf("encodeBlobs complete. blobs=%d", len(blobs))
+
 	calldataBytes, err := common.ParseHexOrString(calldata)
 	if err != nil {
 		log.Fatalf("failed to parse calldata: %v", err)
+	}
+	if len(calldataBytes) == 0 {
+		log.Printf("calldataBytes is empty")
+	}
+
+	hashString := "f53a568f494d9464f2241a7d41c5473e56da9101815780063bbd0250d6e99e0d"
+	hashBytes, _ := hex.DecodeString(hashString)
+	var hash [32]byte
+	copy(hash[:], hashBytes)
+	batchData := BlobRollupBatchData{
+		BlockNumber:    1,
+		BlockWitness:   []byte("witness1"),
+		PreStateRoot:   hash,
+		PostStateRoot:  hash,
+		WithdrawalRoot: hash,
+		Signature: BlobRollupBatchSignature{
+			Signers:   [][]byte{{1}, {2}, {3}},
+			Signature: []byte("signature1"),
+		},
+	}
+
+	batches := []BlobRollupBatchData{batchData}
+
+	abi, err := BlobRollupMetaData.GetAbi()
+	if err != nil {
+		log.Fatalf("failed to GetAbi: %v", err)
+	}
+	input, err := abi.Pack("submit", batches)
+	if err != nil {
+		log.Fatalf("failed to abi.Pack: %v", err)
 	}
 
 	tx := types.NewTx(&types.BlobTx{
@@ -146,12 +178,12 @@ func TxApp(cliCtx *cli.Context) error {
 		Gas:        gasLimit,
 		To:         to,
 		Value:      value256,
-		Data:       calldataBytes,
+		Data:       input,
 		BlobFeeCap: maxFeePerBlobGas256,
 		BlobHashes: versionedHashes,
 	})
 	signedTx, _ := types.SignTx(tx, types.NewCancunSigner(chainId), key)
-	txWithBlobs := types.NewBlobTxWithBlobs(signedTx, blobs, commitments, proofs)
+	txWithBlobs := types.NewBlobTxWithBlobs(signedTx, blobs[:6], commitments[:6], proofs[:6])
 
 	rlpData, _ := txWithBlobs.MarshalBinary()
 	err = client.Client().CallContext(context.Background(), nil, "eth_sendRawTransaction", hexutil.Encode(rlpData))

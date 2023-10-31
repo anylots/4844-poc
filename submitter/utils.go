@@ -3,12 +3,16 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"math/big"
+	"os"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto/kzg4844"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/holiman/uint256"
 )
 
@@ -104,4 +108,27 @@ func DecodeUint256String(hexOrDecimal string) (*uint256.Int, error) {
 		return nil, fmt.Errorf("value is too big")
 	}
 	return val256, nil
+}
+
+func ReadAndDecodeBlocksFromFile(path string) []types.Block {
+	bs := readBsFromFile(path)
+	blocks := []types.Block{}
+	err := rlp.DecodeBytes(bs, &blocks)
+	if err != nil {
+		panic(err)
+	}
+	return blocks
+}
+
+func readBsFromFile(path string) []byte {
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	bs, err := io.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	return bs
 }
